@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>title</title>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="css/jquery.Jcrop.min.css" type="text/css" />
+  <script src="js/jquery.min.js"></script>
+  <script src="js/jquery.Jcrop.js"></script>
+</head>
+<body>
+    <input type="file" id="file">
+    <input type="button" value="保存" id="save">
+    <!-- 上传图片放置位置 -->
+    <div class="jc-demo-box" style="display:none">
+        <img src="" id="target"/>
+    </div>
+    <!-- 截取后图片放置位置 -->
+    <div id="demo"></div>
+</body>
+</html>
+<script type="text/javascript">
+    $(function(){
+        var width,height,x,y,x2,y2;
+        // 上传图片
+        $("#file").change(function(event) {
+            var imgFile = new FileReader();  
+            imgFile.readAsDataURL(this.files[0]);  
+            imgFile.onload = function () {  
+                var src = this.result;  
+                // 设置路径 显示容器 
+                $("#target").attr("src",src);
+                $(".jc-demo-box").css("display",'block');
+                // 初始化
+                jQuery(function($){
+                    var jcrop_api;
+                    $('#target').Jcrop({
+                        onChange:showCoords,
+                        onSelect:showCoords,
+                        },function(){
+                        jcrop_api = this;
+                    });
+                });
+                // 获取坐标
+                function showCoords(c){
+                    width = c.w;
+                    height = c.h;
+                    x = c.x;
+                    y = c.y;
+                };
+            }  
+        });
+        // 保存
+        $("#save").click(function(event) {
+            var image=document.getElementById("myPic");
+            var canvas = document.createElement("canvas");  
+            canvas.width = width;  
+            canvas.height = height;  
+            canvas.style.display = "none";
+            canvas.getContext("2d").drawImage(image,x,y,width,height,0,0,width,height); 
+            $("body").append(canvas);
+            var img = convertCanvasToImage(canvas);
+            $('#demo img').remove();
+            $('#demo').append(img); 
+        });
+        // 从 canvas 提取图片 image  
+        function convertCanvasToImage(canvas) {  
+            var image = new Image();  
+            image.src = canvas.toDataURL("images/png");  
+            return image;  
+        } 
+    })
+</script>
+
